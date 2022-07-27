@@ -50,7 +50,11 @@
 
   (h/command-fn "population"
     (fn [{{id :id :as chat} :chat :as message}]
-      (t/send-text token id (handle-population (:text message)))))
+      (t/send-text token id (try
+                              (handle-population (:text message))
+                              (catch Exception e
+                                (println "Error: " (.getMessage e))
+                                (str "Oh no, we can't bring you the population. Did you follow the pattern COUNTRY-CODE YEAR? Check and try again."))))))
 
   (h/message-fn
     (fn [{{id :id} :chat :as message}]
@@ -70,6 +74,7 @@
 
 (comment
 
+  ;;it should be a unit test
   (str/split "/population BR 2020" #" ")
 
   (nth (str/split "/population BR 2020" #" ") 1)
@@ -102,8 +107,6 @@
   (println (handle-population (:text message-mock)))
 
   ; https://servicodados.ibge.gov.br/api/v1/paises/BR/indicadores/77849?indicadores=2022
-
-
 
 
 
